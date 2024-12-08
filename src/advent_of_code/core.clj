@@ -85,8 +85,91 @@
 
 
 
+(re-seq #"(?s)don't\(\)(.+?)(?:do\(\)|$)" "don't() 12 33 \n")
+
+
+(re-seq #".ar" "ar")
+
+
+(comment (apply map vector  [[ 1 2 3 4 ]
+                     [ 5 6 7 8 ]
+                     [ 9 10 11 12]]))
 
 
 
+
+
+(def m [[1 5 9]
+        [2 6 10]
+        [3 7 11]
+        [4 8 12]])
+
+
+(let [r (count m)
+      c (count (first m))
+      total-d (dec (+ r c))]
+
+  (map #(loop [row %
+          col 0
+          d []
+          res []]
+
+     (if (or (< col 0)
+             (> col (dec c))
+             (> row (dec r))
+             (< row 0))
+       (conj res d)
+       (let [value (nth (nth m row ) col)]
+         (recur (inc row) (inc col) (conj d value) res)))) (range total-d)))
+
+
+
+
+
+
+
+(def aa (read-input 4))
+
+(def mm (map vec (str/split-lines aa)))
+
+(defn extract-right-diagonal [m row]
+  (loop [row row, col 0, out []]
+    (if (< row 0)
+      (filter #(not (false? %)) out)
+      (let [value (nth (nth m row []) col false)]
+        (recur (dec row) (inc col) (conj out value))))))
+
+
+
+(defn extract-left-diagonal [rows row]
+  (loop [row row, col (dec (count (first rows))), out []]
+    (if (< col 0)
+      (filter #(not (false? %)) out)
+      (let [value (nth (nth rows row []) col false)]
+        (recur (dec row) (dec col) (conj out value))))))
+
+
+(def d (let [r (count mm)
+       c (count (first mm))
+       total-d (dec (+ r c))
+             elements (map #(str/join "" %)
+                           (concat (filter #(<= 4 (count %))(map #(extract-right-diagonal mm %) (range total-d)))
+                                   (filter #(<= 4 (count %))(map #(extract-left-diagonal mm %) (range total-d)))))
+             _ (def ee elements)]
+         (+ (count (remove nil? (mapcat #(re-seq #"XMAS" %) elements)))
+            (count (remove nil? (mapcat #(re-seq #"SAMX" %) elements))))))
+
+
+
+(def h (+ (count  (mapcat #(re-seq #"SAMX" %)  (str/split-lines aa)))
+    (count (mapcat #(re-seq #"XMAS" %)  (str/split-lines aa)))))
+
+
+
+(def v (+ (count (mapcat #(re-seq #"SAMX" %) (map #(str/join "" %)(apply map vector mm))))
+    (count (mapcat #(re-seq #"XMAS" %) (map #(str/join "" %)(apply map vector mm))))))
+
+
+(+ d h v)
 
 
